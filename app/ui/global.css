@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 
+@theme {
+  --breakpoint-xs: 30rem;
+}
+
 :root {
   --white-text: #fff;
   --dark-text: #252525;
@@ -13,12 +17,6 @@
   --header-height: 80px;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 ul,
 li {
   list-style: none;
@@ -28,6 +26,7 @@ body {
   background-color: var(--bg-color);
 }
 
+/* TODO: Remove after testing (replaced by Tailwidn) 
 button,
 a {
   text-decoration: none;
@@ -40,11 +39,19 @@ a {
   font-weight: inherit;
   line-height: inherit;
 }
+*/
 
+a,
+button,
+select {
+  cursor: pointer;
+}
+
+/* TODO: Remove after testing (replaced by Tailwidn) 
 input {
   border: none;
   background-color: inherit;
-}
+} */
 
 input:focus {
   outline: none;

@@ -15,10 +15,14 @@ interface Slot {
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export default function TrialLessonRegistrationSection() {
-  const { data, error, isLoading, isValidating, mutate } = useSWR<Slot[]>('/api/slots', fetcher, {
-    refreshInterval: 60_000,
-    revalidateOnFocus: false,
-  });
+  const { data, error, isLoading, isValidating, mutate } = useSWR<Slot[]>(
+    '/api/slots',
+    fetcher,
+    {
+      refreshInterval: 60_000,
+      revalidateOnFocus: false,
+    }
+  );
 
   const slots = useMemo(() => (Array.isArray(data) ? data : []), [data]);
   const noSlots = !isLoading && !error && slots.length === 0;
@@ -38,16 +42,24 @@ export default function TrialLessonRegistrationSection() {
     text: string;
   } | null>(null);
 
-  const cities = useMemo(() => Array.from(new Set(slots.map((s) => s.city))), [slots]);
+  const cities = useMemo(
+    () => Array.from(new Set(slots.map((s) => s.city))),
+    [slots]
+  );
   const dates = useMemo(
-    () => Array.from(new Set(slots.filter((s) => s.city === selectedCity).map((s) => s.date))),
+    () =>
+      Array.from(
+        new Set(slots.filter((s) => s.city === selectedCity).map((s) => s.date))
+      ),
     [slots, selectedCity]
   );
   const times = useMemo(
     () =>
       Array.from(
         new Set(
-          slots.filter((s) => s.city === selectedCity && s.date === selectedDate).map((s) => s.time)
+          slots
+            .filter((s) => s.city === selectedCity && s.date === selectedDate)
+            .map((s) => s.time)
         )
       ),
     [slots, selectedCity, selectedDate]
@@ -76,11 +88,22 @@ export default function TrialLessonRegistrationSection() {
     setFormMessage(null);
 
     if (!selectedCity || !selectedDate || !selectedTime) {
-      setFormMessage({ type: 'error', text: 'Будь ласка, оберіть місто, дату та час.' });
+      setFormMessage({
+        type: 'error',
+        text: 'Будь ласка, оберіть місто, дату та час.',
+      });
       return;
     }
-    if (!modelName || !modelAge || !modelSurname || !phoneRegex.test(phoneNumber)) {
-      setFormMessage({ type: 'error', text: 'Будь ласка, заповніть всі поля коректно.' });
+    if (
+      !modelName ||
+      !modelAge ||
+      !modelSurname ||
+      !phoneRegex.test(phoneNumber)
+    ) {
+      setFormMessage({
+        type: 'error',
+        text: 'Будь ласка, заповніть всі поля коректно.',
+      });
       return;
     }
 
@@ -107,7 +130,10 @@ export default function TrialLessonRegistrationSection() {
         throw new Error(result.error || 'Failed to register for trial lesson');
       }
 
-      setFormMessage({ type: 'success', text: 'Ви успішно записані на пробне заняття!' });
+      setFormMessage({
+        type: 'success',
+        text: 'Ви успішно записані на пробне заняття!',
+      });
 
       setModelName('');
       setModelAge('');
@@ -143,30 +169,38 @@ export default function TrialLessonRegistrationSection() {
               </p>
             ) : noSlots ? (
               <p className={styles['no-slots-message']}>
-                На жаль, наразі відсутні вільні місця. Слідкуйте за оновленнями розкладу або
-                зв’яжіться з адміном.
+                На жаль, наразі відсутні вільні місця. Слідкуйте за оновленнями
+                розкладу або зв’яжіться з адміном.
               </p>
             ) : (
               <form
+                id="trialLessonForm"
                 onSubmit={handleRegistration}
-                className={styles['registration-trial-lesson-card-model-info']}>
-                <InputField value={modelName} onChange={setModelName} placeholder="Ім'я моделі" />
-                <InputField value={modelAge} onChange={setModelAge} placeholder="Вік моделі" />
-                <InputField
-                  value={modelSurname}
-                  onChange={setModelSurname}
-                  placeholder="Прізвище моделі"
-                />
-                <InputField
-                  value={phoneNumber}
-                  onChange={setPhoneNumber}
-                  placeholder="Номер телефону"
-                  type="tel"
-                />
-
-                <p className={styles['registration-trial-lesson-card-timestamp']}>
-                  Оберіть дату та час заняття:
-                </p>
+                className="flex flex-col"
+              >
+                <div className="grid grid-cols-2 gap-5 mb-5 md:gap-x-7">
+                  <InputField
+                    value={modelName}
+                    onChange={setModelName}
+                    placeholder="Ім'я моделі"
+                  />
+                  <InputField
+                    value={modelAge}
+                    onChange={setModelAge}
+                    placeholder="Вік моделі"
+                  />
+                  <InputField
+                    value={modelSurname}
+                    onChange={setModelSurname}
+                    placeholder="Прізвище моделі"
+                  />
+                  <InputField
+                    value={phoneNumber}
+                    onChange={setPhoneNumber}
+                    placeholder="Номер телефону"
+                    type="tel"
+                  />
+                </div>
 
                 <div className={styles['timestamp-selects']}>
                   <SelectField
@@ -196,31 +230,60 @@ export default function TrialLessonRegistrationSection() {
                 {formMessage && (
                   <p
                     className={`mt-4 text-center font-semibold ${
-                      formMessage.type === 'success' ? 'text-green-600' : 'text-red-600'
-                    }`}>
+                      formMessage.type === 'success'
+                        ? 'text-green-600'
+                        : 'text-red-600'
+                    }`}
+                  >
                     {formMessage.text}
                   </p>
                 )}
-
-                <button
-                  className={styles['registration-trial-lesson-button']}
-                  disabled={!selectedCity || !selectedDate || !selectedTime || isValidating}
-                  type="submit">
-                  {isSubmitting ? 'Записуємо...' : isValidating ? 'Оновлюємо…' : 'Записатись'}
-                </button>
               </form>
             )}
           </div>
+
+          <button
+            className="w-[150px] sm:w-[176px] text-sm xs:text-base py-1 border-[1.5px] border-(--lavanda) rounded-lg transition hover:text-(--white-text) hover:bg-(--lavanda)"
+            type="submit"
+            form="trialLessonForm"
+            disabled={
+              !selectedCity || !selectedDate || !selectedTime || isValidating
+            }
+          >
+            {isSubmitting
+              ? 'Записуємо...'
+              : isValidating
+              ? 'Оновлюємо…'
+              : 'Записатись'}
+          </button>
         </div>
         <div className={styles['trial-lesson-price-container']}>
           <div className={styles['trial-lesson-price-cards']}>
-            <PaymentCard months={3} originalPrice="12 000" discountPrice="8 600" discount={15} />
-            <PaymentCard months={4} originalPrice="13 600" discountPrice="10 900" discount={20} />
+            <PaymentCard
+              months={3}
+              originalPrice="12 000"
+              discountPrice="8 600"
+              discount={15}
+            />
+            <PaymentCard
+              months={4}
+              originalPrice="13 600"
+              discountPrice="10 900"
+              discount={20}
+            />
           </div>
 
-          <Link className={styles['trial-lesson-event-learn-more-btn']} href="/prices">
+          <Link
+            className={styles['trial-lesson-event-learn-more-btn']}
+            href="/prices"
+          >
             <span>Дізнатись більше</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="9" viewBox="0 0 14 9">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="9"
+              viewBox="0 0 14 9"
+            >
               <path
                 fillRule="evenodd"
                 clipRule="evenodd"
@@ -275,7 +338,12 @@ function SelectField({
   ariaLabel: string;
 }) {
   return (
-    <select value={value} onChange={(e) => onChange(e.target.value)} aria-label={ariaLabel}>
+    <select
+      className="px-3 py-1 border-b text-xs font-(family-name:--font-roboto) font-light md:text-sm"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      aria-label={ariaLabel}
+    >
       {options.map((opt) => (
         <option key={opt} value={opt}>
           {opt}
@@ -298,6 +366,7 @@ function InputField({
 }) {
   return (
     <input
+      className="px-1 border-b text-xs md:text-xl"
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
